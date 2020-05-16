@@ -1,0 +1,12 @@
+# dependencies
+/node_modules
+
+# IDEs and editors
+/.idea
+
+# environemt
+.env
+.env.dev
+
+# dist
+/dist/
