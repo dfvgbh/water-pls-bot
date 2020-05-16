@@ -7,7 +7,6 @@ import crypto from 'crypto-js';
 import { randomHash } from '../helpers.js';
 import { logFormData } from './log-form-data.js';
 
-
 const app = express();
 const APP_PATH = process.cwd();
 const PORT = 443;
@@ -36,7 +35,7 @@ app.post('/ru/order-water/', logFormData, (req, res) => {
       productName: ['Ukrainian Skandinavia'],
       productCount: [2],
       productPrice: [75],
-      serviceUrl: 'https:\/\/1c.com.ua',
+      serviceUrl: 'https://1c.com.ua',
       paymentSystems: 'card;privat24;googlePay;applePay;masterPass'
     },
   };

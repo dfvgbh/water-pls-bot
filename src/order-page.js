@@ -1,7 +1,7 @@
 import * as https from 'https';
 import { randomHash } from './helpers.js';
 
-const HOST = process.env.HOST;
+const HOST = process.env.WATER_DELIVERY_HOST;
 
 const requestOrderPage = () => {
   const options = {
@@ -11,7 +11,7 @@ const requestOrderPage = () => {
   };
 
   return new Promise((resolve, reject) => {
-    const req = https.request(options, (res) => {
+    const req = https.request(options, res => {
       const chunks = [];
 
       res.on('data',  chunk => {
@@ -23,14 +23,14 @@ const requestOrderPage = () => {
           headers: res.headers,
           body: Buffer.concat(chunks).toString()
         });
-      })
+      });
     });
 
-    req.on('error', reject)
+    req.on('error', reject);
 
     req.end();
   });
-}
+};
 
 const requestPaymentParams = (orderParams, headers) => {
   const boundary = randomHash();
@@ -48,7 +48,7 @@ const requestPaymentParams = (orderParams, headers) => {
   };
 
   return new Promise((resolve, reject) => {
-    const req = https.request(options, (res) => {
+    const req = https.request(options, res => {
       const chunks = [];
 
       res.on('data',  chunk => {
@@ -60,11 +60,11 @@ const requestPaymentParams = (orderParams, headers) => {
           headers: res.headers,
           body: Buffer.concat(chunks).toString()
         });
-      })
+      });
     });
 
     const body = `--${boundaryMiddle}\nContent-Disposition: form-data; name="ajax"\n\nGetTestOrderQuery\n` +
-      `--${boundaryMiddle}\nContent-Disposition: form-data; name="post-date"\n\n${orderParams}\n--${boundaryLast}`
+      `--${boundaryMiddle}\nContent-Disposition: form-data; name="post-date"\n\n${orderParams}\n--${boundaryLast}`;
 
     req.write(body);
 
@@ -72,12 +72,12 @@ const requestPaymentParams = (orderParams, headers) => {
 
     req.end();
   });
-}
+};
 
 const retrieveToken = page => {
   const matches = page.match(/name="checkout\[token]" value="(?<token>.+)"/);
   return matches.groups.token;
-}
+};
 
 const buildOrderParams = params => {
   const tomorrow = new Date(new Date().setDate(new Date().getDate() + 1));
@@ -87,15 +87,15 @@ const buildOrderParams = params => {
     tomorrow.getFullYear().toString(),
   ].join('-');
   const {
-    DELIVERY_USER_NAME,
-    DELIVERY_PHONE,
-    DELIVERY_EMAIL,
-    DELIVERY_CITY,
-    DELIVERY_STREET,
-    DELIVERY_HOUSE,
-    DELIVERY_ENTRANCE,
-    DELIVERY_APARTMENT,
-    DELIVERY_MESSAGE
+    WATER_DELIVERY_USER_NAME,
+    WATER_DELIVERY_PHONE,
+    WATER_DELIVERY_EMAIL,
+    WATER_DELIVERY_CITY,
+    WATER_DELIVERY_STREET,
+    WATER_DELIVERY_HOUSE,
+    WATER_DELIVERY_ENTRANCE,
+    WATER_DELIVERY_APARTMENT,
+    WATER_DELIVERY_MESSAGE
   } = process.env;
 
   const orderParams = new URLSearchParams({
@@ -104,17 +104,17 @@ const buildOrderParams = params => {
     'checkout[price][delivery]': '0',
     'checkout[price][total]': '150.00',
     'checkout[user][perezvon1]': 'on',
-    'checkout[user][fullname]': DELIVERY_USER_NAME,
-    'checkout[user][phone]': DELIVERY_PHONE,
-    'checkout[user][email]': DELIVERY_EMAIL,
+    'checkout[user][fullname]': WATER_DELIVERY_USER_NAME,
+    'checkout[user][phone]': WATER_DELIVERY_PHONE,
+    'checkout[user][email]': WATER_DELIVERY_EMAIL,
     'checkout[delivery][date]': deliveryDate,
     'checkout[delivery][time]': '09 : 00 – 12 : 00',
-    'checkout[delivery][city]': DELIVERY_CITY,
-    'checkout[delivery][street]': DELIVERY_STREET,
-    'checkout[delivery][house]': DELIVERY_HOUSE,
-    'checkout[delivery][entrance]': DELIVERY_ENTRANCE,
-    'checkout[delivery][apartment]': DELIVERY_APARTMENT,
-    'checkout[message]': DELIVERY_MESSAGE,
+    'checkout[delivery][city]': WATER_DELIVERY_CITY,
+    'checkout[delivery][street]': WATER_DELIVERY_STREET,
+    'checkout[delivery][house]': WATER_DELIVERY_HOUSE,
+    'checkout[delivery][entrance]': WATER_DELIVERY_ENTRANCE,
+    'checkout[delivery][apartment]': WATER_DELIVERY_APARTMENT,
+    'checkout[message]': WATER_DELIVERY_MESSAGE,
     'checkout[type_order]': '1',
     'checkout[delivery][method]': '3',
     'checkout[agree]': 'on',
@@ -122,19 +122,19 @@ const buildOrderParams = params => {
   });
 
   return orderParams.toString().replace(/\+/g, '%20');
-}
+};
 
-export const getPaymentParams = async (orderParams) => {
+export const getPaymentParams = async orderParams => {
   const orderPageResponse = await requestOrderPage();
   const cookies = orderPageResponse.headers['set-cookie'];
-  const token = retrieveToken(orderPageResponse.body);
+  const checkoutToken = retrieveToken(orderPageResponse.body);
   const serializedOrderParams = buildOrderParams({
-    'checkout[token]': token,
+    'checkout[token]': checkoutToken,
     ...orderParams,
   });
 
   return await requestPaymentParams(serializedOrderParams, {
     cookie: cookies[0]
   });
-}
+};
 

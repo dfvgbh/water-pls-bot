@@ -5,12 +5,13 @@ export const logFormData = (req, res, next) => {
     chunks.push(chunk);
   });
 
-  req.on('end', function() {
+  req.on('end', () => {
     const body = Buffer.concat(chunks).toString();
-    const { groups: { orderParams } } = body.match(/name=.post-date.\s+(?<orderParams>.*)\s+------WebKitFormBoundary/sm);
+    const { groups: { orderParams } } =
+      body.match(/name=.post-date.\s+(?<orderParams>.*)\s+------WebKitFormBoundary/sm);
 
     console.log(decodeURIComponent(orderParams).split('&'));
   });
 
   next();
-}
+};

@@ -6,12 +6,12 @@ export const requestPayment = async params => {
     hostname: 'secure.wayforpay.com',
     path: '/pay/compact?build=50',
     headers: {
-      'content-type': `application/x-www-form-urlencoded`,
+      'content-type': 'application/x-www-form-urlencoded',
     },
   };
 
   return new Promise((resolve, reject) => {
-    const req = https.request(options, (res) => {
+    const req = https.request(options, res => {
       const chunks = [];
 
       res.on('data',  chunk => {
@@ -23,7 +23,7 @@ export const requestPayment = async params => {
           headers: res.headers,
           body: Buffer.concat(chunks).toString()
         });
-      })
+      });
     });
 
     const data = new URLSearchParams(params).toString();
@@ -33,4 +33,4 @@ export const requestPayment = async params => {
 
     req.end();
   });
-}
+};

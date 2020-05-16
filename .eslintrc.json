@@ -92,7 +92,8 @@
       "error",
       {
         "code": 100,
-        "ignoreUrls": true
+        "ignoreUrls": true,
+        "ignoreTemplateLiterals": true
       }
     ],
     "max-nested-callbacks": [
