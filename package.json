@@ -4,10 +4,11 @@
   "main": "index.js",
   "scripts": {
     "start": " npm run start:mock & npm run start:dev",
-    "start:dev": "nodemon --inspect -r dotenv/config ./src/index.js",
+    "start:dev": "NODE_EXTRA_CA_CERTS=src/mocks/certs/localhost.pem nodemon --inspect -r dotenv/config ./src/index.js",
     "start:mock": "nodemon --watch src/mocks src/mocks/mock-server.js",
     "lint": "eslint ./src",
-    "lint:fix": "eslint ./src --fix"
+    "lint:fix": "eslint ./src --fix",
+    "generate-mock-ssl": "mkdir src/mocks/certs && openssl req -nodes -new -x509 -keyout src/mocks/certs/localhost.key -out src/mocks/certs/localhost.pem"
   },
   "license": "MIT License",
   "devDependencies": {

@@ -16,8 +16,17 @@ const processOrder = async orderParams => {
     return payment.headers.location;
   } catch (err) {
     console.error(err);
-    return 'Error while processing order';
+    throw err;
   }
+};
+
+const isAuthorized = async (userId, chatId) => {
+  if (!TELEGRAM_USER_IDS.includes(userId)) {
+    await bot.sendMessage(chatId, 'Access denied 🖕🏿');
+    return false;
+  }
+
+  return true;
 };
 
 // refactor if need more to identify callback queries
@@ -25,10 +34,7 @@ const DELIVERY_INTERVAL_QUERY_TEXT = 'Времечко не подскажите
 
 bot.onText(/^\/order$/, async msg => {
   const { chat: { id: chatId }, from: { id: userId } } = msg;
-  if (!TELEGRAM_USER_IDS.includes(userId)) {
-    await bot.sendMessage(chatId, 'Access denied 🖕🏿');
-    return;
-  }
+  if (!await isAuthorized(userId, chatId)) return;
 
   await bot.sendMessage(chatId, DELIVERY_INTERVAL_QUERY_TEXT,  {
     reply_markup: {
@@ -42,18 +48,21 @@ bot.on('callback_query', async query => {
   const { from: { id: userId } } = query;
   const { chat: { id: chatId } } = message;
 
-  if (!TELEGRAM_USER_IDS.includes(userId)) {
-    await bot.answerCallbackQuery(query.id, 'Access denied 🖕🏿');
+  if (!await isAuthorized(userId, chatId)) {
+    await bot.answerCallbackQuery(query.id, 'Failure 🙈');
     return;
   }
 
   if (message.text === DELIVERY_INTERVAL_QUERY_TEXT) {
-    const paymentUrl = await processOrder({
-      'checkout[delivery][time]': data,
-    });
-
-    await bot.sendMessage(chatId, paymentUrl);
+    try {
+      const paymentUrl = await processOrder({
+        'checkout[delivery][time]': data,
+      });
+      await bot.sendMessage(chatId, paymentUrl);
+      await bot.answerCallbackQuery(query.id, 'Success 🐳');
+    } catch {
+      await bot.sendMessage(chatId, 'Error while processing order');
+      await bot.answerCallbackQuery(query.id, 'Failure 🙈');
+    }
   }
-
-  await bot.answerCallbackQuery(query.id, 'Success 🐳');
 });

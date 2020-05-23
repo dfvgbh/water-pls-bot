@@ -108,7 +108,6 @@ const buildOrderParams = params => {
     'checkout[user][phone]': WATER_DELIVERY_PHONE,
     'checkout[user][email]': WATER_DELIVERY_EMAIL,
     'checkout[delivery][date]': deliveryDate,
-    'checkout[delivery][time]': '09 : 00 – 12 : 00',
     'checkout[delivery][city]': WATER_DELIVERY_CITY,
     'checkout[delivery][street]': WATER_DELIVERY_STREET,
     'checkout[delivery][house]': WATER_DELIVERY_HOUSE,

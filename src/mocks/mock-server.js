@@ -47,8 +47,8 @@ startServer(app).then(() => console.log(`Mock server listening on port: ${PORT}`
 
 async function startServer(app) {
   const [privateKey, certificate] = await Promise.all([
-    promisify(readFile)(path.join(APP_PATH, 'src/mocks/cert/selfsigned.key'), 'utf8'),
-    promisify(readFile)(path.join(APP_PATH, 'src/mocks/cert/selfsigned.pem'), 'utf8'),
+    promisify(readFile)(path.join(APP_PATH, 'src/mocks/certs/localhost.key'), 'utf8'),
+    promisify(readFile)(path.join(APP_PATH, 'src/mocks/certs/localhost.pem'), 'utf8'),
   ]);
   const credentials = { key: privateKey, cert: certificate };
 

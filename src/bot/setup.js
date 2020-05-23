@@ -15,13 +15,16 @@ const setupWebHookBot = () => {
   bot.setWebHook(`${url}/${TELEGRAM_TOKEN}`);
 
   return bot;
-}
+};
 
 const setupPoolingBot = () => {
-  return new TelegramBot(TELEGRAM_TOKEN, { polling: true });
-}
+  const bot = new TelegramBot(TELEGRAM_TOKEN, { polling: true });
+
+  bot.on('polling_error', msg => console.error('Error in pooling: ', msg));
+
+  return bot;
+};
 
 export const bot = isProd ? setupWebHookBot() : setupPoolingBot();
 
-bot.on('polling_error', msg => console.error('Error in pooling: ', msg));
 
